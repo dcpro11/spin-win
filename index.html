@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spin & Win — DC Beats</title>
+<meta name="description" content="Spin the wheel and win exclusive DC Beats prizes — free leases, discounts, and more. One spin per day.">
+
+<!-- Fonts: Syne + Inter + JetBrains Mono — matching dcbeats.net -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   DC BEATS — SPIN & WIN LANDING PAGE
+   Aesthetic: Dark Luxury · Gold · dcbeats.net
+   ============================================================ */
+
+/* ── VARIABLES (mirror dcbeats.net style.css) ─────────────── */
+:root {
+  --bg-primary:    #0a0a0a;
+  --bg-secondary:  #0f0f0f;
+  --bg-card:       #131313;
+  --bg-elevated:   #181818;
+  --border:        rgba(255,255,255,0.06);
+  --border-mid:    rgba(255,255,255,0.10);
+  --gold:          #c8a96e;
+  --gold-light:    #dfc28e;
+  --gold-dim:      rgba(200,169,110,0.10);
+  --gold-glow:     rgba(200,169,110,0.20);
+  --text-primary:  #f0ece4;
+  --text-secondary:#8a8278;
+  --text-muted:    #6d6761;
+  --font-display:  'Syne', sans-serif;
+  --font-body:     'Inter', sans-serif;
+  --font-mono:     'JetBrains Mono', monospace;
+  --ease:          cubic-bezier(0.16,1,0.3,1);
+  --transition:    0.4s var(--ease);
+  --transition-fast: 0.25s var(--ease);
+
+  /* Wheel modal z-stack */
+  --z-overlay:  9100;
+  --z-modal:    9200;
+  --z-confetti: 9300;
+  --z-toast:    9400;
+}
+
+/* ── RESET ────────────────────────────────────────────────── */
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  line-height: 1.7;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+img,video { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; border: none; background: none; font-family: inherit; }
+::selection { background: var(--gold); color: var(--bg-primary); }
+::-webkit-scrollbar       { width: 3px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
+
+/* ── TYPOGRAPHY ───────────────────────────────────────────── */
+h1,h2,h3,h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.05;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+}
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: inline-block;
+}
+
+/* ── LAYOUT ───────────────────────────────────────────────── */
+.container {
+  width: 100%;
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* ============================================================
+   NAV BAR
+   ============================================================ */
+#nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  background: rgba(10,10,10,0.85);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+#nav .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+/*.nav-logo {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--text-primary);
+  text-transform: uppercase;
+} */
+.nav-logo span { color: var(--gold); }
+.nav-back {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+}
+.nav-back:hover { color: var(--gold); }
+.nav-back svg { width: 14px; height: 14px; transition: transform var(--transition-fast); }
+.nav-back:hover svg { transform: translateX(-3px); }
+
+/* ============================================================
+   HERO — full viewport, two-column
+   ============================================================ */
+#hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 4rem;
+  padding-top: 72px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ambient glow */
+#hero::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 900px; height: 900px;
+  background: radial-gradient(ellipse at center, rgba(200,169,110,0.045) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.hero-copy {
+  position: relative;
+  z-index: 1;
+  padding-left: 2rem;
+}
+.hero-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+.hero-eyebrow .label { font-size: 0.62rem; }
+.hero-eyebrow-line { width: 32px; height: 1px; background: var(--gold); opacity: 0.5; }
+
+.hero-title {
+  font-size: clamp(3rem, 5.5vw, 5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+}
+.hero-title .accent { display: block; color: var(--gold); }
+.hero-title .outline {
+  display: block;
+  -webkit-text-stroke: 1px rgba(200,169,110,0.35);
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.hero-desc {
+  font-size: 0.95rem;
+  line-height: 1.85;
+  color: var(--text-secondary);
+  max-width: 42ch;
+  margin-bottom: 2.5rem;
+}
+
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--gold);
+  color: var(--bg-primary);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 1rem 2.2rem;
+  border-radius: 2px;
+  border: 1px solid var(--gold);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+.hero-cta:hover {
+  background: var(--gold-light);
+  border-color: var(--gold-light);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px var(--gold-glow);
+}
+
+.hero-note {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.hero-note::before {
+  content: '';
+  display: block;
+  width: 16px; height: 1px;
+  background: var(--text-muted);
+  opacity: 0.4;
+}
+
+/* RIGHT: decorative wheel */
+.hero-visual {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 2rem;
+}
+.hero-wheel-preview {
+  position: relative;
+  width: 360px; height: 360px;
+}
+#hero-canvas {
+  display: block;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 1px var(--border),
+    0 0 0 8px rgba(200,169,110,0.04),
+    0 0 80px rgba(200,169,110,0.08),
+    0 40px 120px rgba(0,0,0,0.6);
+  animation: hw-float 5s ease-in-out infinite;
+}
+@keyframes hw-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+
+.hero-wheel-ring {
+  position: absolute; inset: -12px;
+  border-radius: 50%;
+  border: 1px solid rgba(200,169,110,0.12);
+  animation: hw-float 5s ease-in-out infinite;
+}
+.hero-wheel-ring-2 {
+  position: absolute; inset: -24px;
+  border-radius: 50%;
+  border: 1px solid rgba(200,169,110,0.05);
+  animation: hw-float 5s ease-in-out infinite 0.3s;
+}
+.hero-pointer {
+  position: absolute;
+  top: -4px; left: 50%;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 20px solid var(--gold);
+  filter: drop-shadow(0 0 6px rgba(200,169,110,0.6));
+  z-index: 2;
+}
+
+.prize-pill-left, .prize-pill-right {
+  position: absolute;
+  background: var(--bg-card);
+  border: 1px solid var(--border-mid);
+  border-left: 2px solid var(--gold);
+  padding: 0.5rem 0.85rem;
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.prize-pill-left  { left: -28px; top: 28%; }
+.prize-pill-right { right: -28px; bottom: 28%; }
+.prize-pill-left span, .prize-pill-right span { color: var(--gold); display: block; margin-top: 2px; }
+
+/* ============================================================
+   PRIZES SECTION
+   ============================================================ */
+#prizes {
+  padding: 6rem 0;
+  border-top: 1px solid var(--border);
+  background: var(--bg-secondary);
+}
+.prizes-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+.prizes-header-line { flex: 1; height: 1px; background: var(--border); }
+.prizes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+.prize-card {
+  background: var(--bg-card);
+  padding: 2rem 1.75rem;
+  position: relative;
+  transition: background var(--transition-fast);
+}
+.prize-card:hover { background: var(--bg-elevated); }
+.prize-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+.prize-card-emoji { font-size: 1.4rem; }
+.prize-card-prob {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  padding: 0.2rem 0.5rem;
+  border-radius: 2px;
+}
+.prize-card-name {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+}
+.prize-card-sub { font-size: 0.78rem; color: var(--text-muted); line-height: 1.6; }
+.prize-card-bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--gold);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+.prize-card:hover .prize-card-bar { opacity: 0.4; }
+.prize-card.featured .prize-card-bar { opacity: 1; }
+.prize-card.featured { background: var(--bg-elevated); }
+
+/* ============================================================
+   HOW IT WORKS
+   ============================================================ */
+#how { padding: 6rem 0; border-top: 1px solid var(--border); }
+.how-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 4rem; }
+.how-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+}
+.how-step { padding: 0 2.5rem 0 0; position: relative; }
+.how-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: 1.25rem; top: 0.6rem;
+  width: 1px; height: 40px;
+  background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+  opacity: 0.2;
+}
+.how-step-num {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.22em;
+  color: var(--gold);
+  opacity: 0.6;
+  display: block;
+  margin-bottom: 1rem;
+}
+.how-step h3 {
+  font-size: 1.2rem; font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.6rem;
+  letter-spacing: -0.02em;
+}
+.how-step p { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.8; max-width: 100%; }
+
+/* ============================================================
+   BOTTOM CTA STRIP
+   ============================================================ */
+#cta-strip {
+  padding: 5rem 0;
+  border-top: 1px solid var(--border);
+  background: var(--bg-secondary);
+}
+.cta-inner {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4rem;
+  align-items: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--gold);
+  padding: 3rem 4rem;
+}
+.cta-text h2 {
+  font-size: clamp(1.6rem, 3.5vw, 2.6rem);
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.03em;
+}
+.cta-text p { font-size: 0.88rem; color: var(--text-secondary); max-width: 48ch; }
+.cta-actions { display: flex; flex-direction: column; align-items: flex-start; gap: 0.75rem; flex-shrink: 0; }
+.cta-note {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer { padding: 2rem 0; border-top: 1px solid var(--border); }
+footer .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.footer-logo {
+  font-family: var(--font-display);
+  font-size: 0.85rem; font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--text-muted); text-transform: uppercase;
+}
+.footer-logo span { color: var(--gold); }
+.footer-text {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.footer-link {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+}
+.footer-link:hover { color: var(--gold); }
+
+
+/* ============================================================
+   ░░ SPIN WIDGET — MODAL LAYER ░░
+   ════════════════════════════════════════════════════════════
+   ⬇ COPY EVERYTHING FROM HERE DOWN TO "FLOATING BUTTON" ⬇
+   when embedding the widget into the main site (index.html)
+   ============================================================ */
+
+#sw-overlay {
+  position: fixed; inset: 0;
+  z-index: var(--z-overlay);
+  background: rgba(0,0,0,0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+#sw-overlay.active { opacity: 1; pointer-events: all; }
+
+#sw-modal {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%) scale(0.92);
+  z-index: var(--z-modal);
+  width: min(500px, 94vw);
+  background: var(--bg-card);
+  border: 1px solid var(--border-mid);
+  border-top: 2px solid var(--gold);
+  box-shadow:
+    0 0 0 1px rgba(200,169,110,0.06),
+    0 40px 100px rgba(0,0,0,0.75),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+  padding: 40px 36px 36px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.35s var(--ease);
+}
+#sw-modal.active {
+  opacity: 1; pointer-events: all;
+  transform: translate(-50%,-50%) scale(1);
+}
+#sw-modal .sw-close {
+  position: absolute;
+  top: 16px; right: 20px;
+  background: none; border: none;
+  color: var(--text-muted);
+  font-size: 1.05rem;
+  cursor: pointer; padding: 4px 8px;
+  border-radius: 2px;
+  transition: color var(--transition-fast);
+  line-height: 1; font-family: var(--font-mono);
+}
+#sw-modal .sw-close:hover { color: var(--text-primary); }
+
+.sw-header { text-align: center; margin-bottom: 28px; }
+.sw-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid rgba(200,169,110,0.25);
+  background: var(--gold-dim); border-radius: 2px;
+  padding: 4px 12px;
+  font-family: var(--font-mono); font-size: 0.6rem;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 12px;
+}
+.sw-badge::before { content: '●'; font-size: 0.45rem; animation: blink 1.5s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+.sw-header h2 {
+  font-family: var(--font-display);
+  font-size: 2.1rem; font-weight: 800;
+  letter-spacing: -0.04em; color: var(--text-primary); line-height: 1;
+}
+.sw-header p {
+  font-family: var(--font-mono); font-size: 0.63rem;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text-muted); margin-top: 8px; max-width: 100%;
+}
+
+.sw-wheel-wrap {
+  position: relative; display: flex;
+  flex-direction: column; align-items: center;
+  margin-bottom: 28px;
+}
+.sw-pointer {
+  position: absolute; top: -4px; left: 50%;
+  transform: translateX(-50%); z-index: 10;
+  width: 0; height: 0;
+  border-left: 11px solid transparent;
+  border-right: 11px solid transparent;
+  border-top: 20px solid var(--gold);
+  filter: drop-shadow(0 0 6px rgba(200,169,110,0.7));
+}
+#sw-canvas {
+  display: block; border-radius: 50%;
+  box-shadow:
+    0 0 0 1px var(--border-mid),
+    0 0 0 6px rgba(200,169,110,0.04),
+    0 0 50px rgba(200,169,110,0.08),
+    0 20px 60px rgba(0,0,0,0.5);
+  cursor: pointer; transition: box-shadow 0.3s;
+}
+#sw-canvas:hover {
+  box-shadow:
+    0 0 0 1px rgba(200,169,110,0.2),
+    0 0 0 6px rgba(200,169,110,0.06),
+    0 0 70px rgba(200,169,110,0.14),
+    0 20px 60px rgba(0,0,0,0.5);
+}
+
+#sw-spin-btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: 15px 24px; border-radius: 2px;
+  border: 1px solid var(--gold); background: var(--gold);
+  color: var(--bg-primary);
+  font-family: var(--font-display); font-size: 1.2rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  cursor: pointer; transition: all var(--transition-fast);
+  position: relative; overflow: hidden;
+}
+#sw-spin-btn::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg,rgba(255,255,255,0.1) 0%,transparent 60%);
+  pointer-events: none;
+}
+#sw-spin-btn:hover:not(:disabled) {
+  background: var(--gold-light); border-color: var(--gold-light);
+  transform: translateY(-2px); box-shadow: 0 8px 30px var(--gold-glow);
+}
+#sw-spin-btn:active:not(:disabled) { transform: translateY(0); }
+#sw-spin-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+.sw-controls { display: flex; justify-content: center; margin-top: 12px; }
+.sw-mute-btn {
+  background: none; border: 1px solid var(--border);
+  color: var(--text-muted); font-size: 0.65rem;
+  padding: 5px 14px; border-radius: 2px;
+  cursor: pointer; font-family: var(--font-mono);
+  letter-spacing: 0.1em; text-transform: uppercase;
+  transition: all var(--transition-fast);
+  display: flex; align-items: center; gap: 5px;
+}
+.sw-mute-btn:hover { color: var(--text-primary); border-color: var(--border-mid); }
+
+#sw-result-panel, #sw-blocked-panel, #sw-loading-panel {
+  display: none; flex-direction: column;
+  align-items: center; text-align: center; gap: 16px;
+}
+#sw-result-panel.active,
+#sw-blocked-panel.active,
+#sw-loading-panel.active { display: flex; }
+
+.sw-prize-emoji { font-size: 2.8rem; animation: sw-pop 0.5s var(--ease); }
+@keyframes sw-pop { from{transform:scale(0)} to{transform:scale(1)} }
+
+.sw-prize-title {
+  font-family: var(--font-display);
+  font-size: 1.9rem; font-weight: 800;
+  letter-spacing: -0.03em; color: var(--text-primary); line-height: 1.1;
+}
+.sw-prize-title .gold { color: var(--gold); }
+.sw-prize-sub { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7; max-width: 340px; }
+.sw-prize-note {
+  font-family: var(--font-mono); font-size: 0.62rem;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--gold);
+  border: 1px solid rgba(200,169,110,0.2); background: var(--gold-dim);
+  padding: 7px 16px; border-radius: 2px;
+}
+
+.sw-email-form { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+.sw-email-form input[type="email"] {
+  width: 100%; padding: 13px 18px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-mid); border-radius: 2px;
+  color: var(--text-primary); font-family: var(--font-body);
+  font-size: 0.9rem; outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+.sw-email-form input[type="email"]:focus {
+  border-color: rgba(200,169,110,0.4);
+  box-shadow: 0 0 0 3px rgba(200,169,110,0.08);
+}
+.sw-email-form input[type="email"]::placeholder { color: var(--text-muted); }
+
+.sw-claim-btn {
+  width: 100%; padding: 14px 24px;
+  border-radius: 2px; border: 1px solid var(--border-mid);
+  background: var(--bg-elevated); color: var(--text-primary);
+  font-family: var(--font-display); font-size: 1.1rem; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  cursor: pointer; transition: all var(--transition-fast);
+  position: relative; overflow: hidden;
+}
+.sw-claim-btn::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg,rgba(200,169,110,0.08) 0%,transparent 60%);
+  pointer-events: none;
+}
+.sw-claim-btn:hover:not(:disabled) {
+  border-color: var(--gold); color: var(--gold);
+  transform: translateY(-2px); box-shadow: 0 8px 24px rgba(200,169,110,0.15);
+}
+.sw-claim-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.sw-success-msg {
+  font-family: var(--font-mono); font-size: 0.72rem;
+  letter-spacing: 0.08em; color: var(--gold);
+  text-align: center; display: none; line-height: 1.7;
+}
+
+.sw-blocked-icon { font-size: 2.2rem; }
+.sw-blocked-title {
+  font-family: var(--font-display); font-size: 1.7rem; font-weight: 700;
+  color: var(--text-primary); letter-spacing: -0.03em;
+}
+.sw-blocked-sub { font-size: 0.83rem; color: var(--text-secondary); line-height: 1.7; }
+.sw-countdown {
+  font-family: var(--font-mono); font-size: 1.1rem;
+  letter-spacing: 0.14em; color: var(--gold);
+  border: 1px solid rgba(200,169,110,0.2); background: var(--gold-dim);
+  padding: 10px 28px; border-radius: 2px;
+}
+
+.sw-spinner {
+  width: 36px; height: 36px;
+  border: 2px solid var(--border-mid);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: sw-spin 0.8s linear infinite;
+}
+@keyframes sw-spin { to { transform: rotate(360deg); } }
+.sw-loading-text {
+  font-family: var(--font-mono); font-size: 0.65rem;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted);
+}
+
+#sw-toast {
+  position: fixed; bottom: 28px; right: 24px;
+  z-index: var(--z-toast);
+  display: flex; align-items: center; gap: 12px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-mid);
+  border-left: 2px solid var(--gold);
+  border-radius: 2px; padding: 10px 16px;
+  max-width: 280px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  transform: translateX(120%); opacity: 0;
+  transition: transform 0.45s var(--ease), opacity 0.3s ease;
+  pointer-events: none;
+}
+#sw-toast.show { transform: translateX(0); opacity: 1; }
+.sw-toast-icon { font-size: 1.2rem; flex-shrink: 0; }
+.sw-toast-text { font-size: 0.76rem; color: var(--text-secondary); line-height: 1.4; }
+.sw-toast-text span {
+  display: block; font-family: var(--font-mono);
+  font-size: 0.58rem; letter-spacing: 0.08em;
+  color: var(--text-muted); margin-top: 2px;
+}
+
+#sw-confetti {
+  position: fixed; inset: 0;
+  z-index: var(--z-confetti);
+  pointer-events: none;
+}
+
+/* ============================================================
+   ░░ FLOATING BUTTON — DISABLED FOR LANDING PAGE ░░
+   ════════════════════════════════════════════════════════════
+   Uncomment the CSS + HTML block below to re-enable the
+   floating trigger when embedding in the main site.
+   ============================================================ */
+/*
+#sw-float-btn {
+  position: fixed; bottom: 32px; right: 28px;
+  z-index: 9000; cursor: pointer;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 6px;
+  background: none; border: none; outline: none; user-select: none;
+  animation: sw-float-pulse 3s ease-in-out infinite;
+}
+@keyframes sw-float-pulse {
+  0%,100% { transform: translateY(0) scale(1); }
+  50%      { transform: translateY(-6px) scale(1.04); }
+}
+#sw-float-btn .sw-wheel-icon {
+  width: 60px; height: 60px; border-radius: 50%;
+  background: conic-gradient(
+    #c8a96e 0deg 60deg, #8a7355 60deg 120deg,
+    #6b5c3e 120deg 180deg, #3d3428 180deg 240deg,
+    #2a2318 240deg 300deg, #141414 300deg 360deg
+  );
+  box-shadow: 0 0 0 3px #0a0a0a, 0 0 0 5px rgba(200,169,110,0.45),
+              0 0 30px rgba(200,169,110,0.2);
+  position: relative;
+}
+#sw-float-btn .sw-wheel-icon::after {
+  content: ''; position: absolute; inset: 50%;
+  transform: translate(-50%,-50%);
+  width: 13px; height: 13px; border-radius: 50%;
+  background: #0a0a0a; border: 1.5px solid rgba(200,169,110,0.3);
+}
+#sw-float-btn .sw-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem; font-weight: 500;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: #c8a96e; white-space: nowrap;
+}
+*/
+
+/* ── RESPONSIVE ───────────────────────────────────────────── */
+@media (max-width: 600px) {
+  #hero {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+    padding: calc(72px + 3rem) 0 4rem;
+    text-align: center;
+  }
+  .hero-copy { padding: 0 1.5rem; }
+  .hero-eyebrow, .hero-note { justify-content: center; }
+  .hero-desc { margin: 0 auto 2rem; }
+  .hero-visual { padding: 0 1.5rem; }
+  .hero-wheel-preview { width: 280px; height: 280px; }
+  .prize-pill-left, .prize-pill-right { display: none; }
+  .prizes-grid { grid-template-columns: 1fr 1fr; }
+  .how-steps { grid-template-columns: 1fr; gap: 2.5rem; }
+  .how-step:not(:last-child)::after { display: none; }
+  .cta-inner { grid-template-columns: 1fr; gap: 2rem; padding: 2rem; }
+}
+@media (max-width: 600px) {
+  .prizes-grid { grid-template-columns: 1fr; }
+  #sw-modal { padding: 32px 20px 28px; }
+  .sw-header h2 { font-size: 1.8rem; }
+  footer .container { flex-direction: column; gap: 1rem; text-align: center; }
+  #hero-canvas { width: 260px !important; height: 260px !important; }
+  .hero-wheel-preview { width: 260px; height: 260px; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- NAV                                                        -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<nav id="nav">
+  <div class="container">
+    <a href="https://earlyaccess.dcbeats.net" class="nav-back">
+      <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8.5 2L3.5 7L8.5 12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Back to site
+    </a>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- HERO                                                       -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<section id="hero">
+  <div class="container" style="display:contents;">
+
+    <div class="hero-copy">
+      <div class="hero-eyebrow">
+        <div class="hero-eyebrow-line"></div>
+        <span class="label">Exclusive offer · DC Beats</span>
+      </div>
+      <h1 class="hero-title">
+        <span>SPIN</span>
+        <span class="accent">&amp; WIN</span>
+        <span class="outline">PRIZES</span>
+      </h1>
+      <p class="hero-desc">
+        <strong>One free spin per day.</strong> Win exclusive beat leases and discounts —
+        no catch. 
+      </p>
+      <button class="hero-cta" id="hero-spin-cta" >
+        🎰 &nbsp;Spin the wheel
+      </button>
+      <div class="hero-note">One play per 24 hours · Free to enter</div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="hero-wheel-preview">
+        <div class="hero-wheel-ring"></div>
+        <div class="hero-wheel-ring-2"></div>
+        <div class="hero-pointer"></div>
+        <canvas id="hero-canvas" width="360" height="360"></canvas>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- PRIZES                                                     -->
+<!-- ══════════════════════════════════════════════════════════ 
+<section id="prizes">
+  <div class="container">
+    <div class="prizes-header">
+      <span class="label">What you can win</span>
+      <div class="prizes-header-line"></div>
+    </div>
+    <div class="prizes-grid">
+
+      <div class="prize-card featured">
+        <div class="prize-card-bar"></div>
+        <div class="prize-card-top">
+          <span class="prize-card-emoji">👑</span>
+          <span class="prize-card-prob">1% chance</span>
+        </div>
+        <div class="prize-card-name">Free Unlimited Lease</div>
+        <div class="prize-card-sub">Full unlimited rights to any beat in the catalog. The rarest prize on the wheel.</div>
+      </div>
+
+      <div class="prize-card">
+        <div class="prize-card-bar"></div>
+        <div class="prize-card-top">
+          <span class="prize-card-emoji">🎵</span>
+          <span class="prize-card-prob">3% chance</span>
+        </div>
+        <div class="prize-card-name">Free Basic Lease</div>
+        <div class="prize-card-sub">A free basic lease on any beat — yours to use on your next release.</div>
+      </div>
+
+      <div class="prize-card">
+        <div class="prize-card-bar"></div>
+        <div class="prize-card-top">
+          <span class="prize-card-emoji">🔥</span>
+          <span class="prize-card-prob">5% chance</span>
+        </div>
+        <div class="prize-card-name">50% Discount</div>
+        <div class="prize-card-sub">Half price on any lease. Stack it with your favourite beat from the catalog.</div>
+      </div>
+
+      <div class="prize-card">
+        <div class="prize-card-bar"></div>
+        <div class="prize-card-top">
+          <span class="prize-card-emoji">⚡</span>
+          <span class="prize-card-prob">15% chance</span>
+        </div>
+        <div class="prize-card-name">30% Discount</div>
+        <div class="prize-card-sub">Significant savings on any beat lease. Great odds, real value.</div>
+      </div>
+
+      <div class="prize-card">
+        <div class="prize-card-bar"></div>
+        <div class="prize-card-top">
+          <span class="prize-card-emoji">🎯</span>
+          <span class="prize-card-prob">25% chance</span>
+        </div>
+        <div class="prize-card-name">10% Discount</div>
+        <div class="prize-card-sub">The most common win. Still saves you real money on your next purchase.</div>
+      </div>
+
+      <div class="prize-card" style="opacity:.5;">
+        <div class="prize-card-bar"></div>
+        <div class="prize-card-top">
+          <span class="prize-card-emoji">🔄</span>
+          <span class="prize-card-prob">51% chance</span>
+        </div>
+        <div class="prize-card-name">Try Again</div>
+        <div class="prize-card-sub">No win this time. Come back tomorrow — every spin is free.</div>
+      </div>
+
+    </div>
+  </div>
+</section> -->
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- HOW IT WORKS                                              -->
+<!-- ══════════════════════════════════════════════════════════ 
+<section id="how">
+  <div class="container">
+    <div class="how-header">
+      <span class="label">How it works</span>
+    </div>
+    <div class="how-steps">
+      <div class="how-step">
+        <span class="how-step-num">— 01</span>
+        <h3>Spin the wheel</h3>
+        <p>Click spin and watch the wheel decide your fate. One free play every 24 hours, no account needed.</p>
+      </div>
+      <div class="how-step">
+        <span class="how-step-num">— 02</span>
+        <h3>Win a prize</h3>
+        <p>If you land on a prize, enter your email to claim it. Your details are only used to send your reward.</p>
+      </div>
+      <div class="how-step">
+        <span class="how-step-num">— 03</span>
+        <h3>Get your beat</h3>
+        <p>We'll contact you within 24 hours with your discount code or free lease. Head to dcbeats.net to redeem.</p>
+      </div>
+    </div>
+  </div>
+</section> -->
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- BOTTOM CTA                                                 -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<section id="cta-strip">
+  <div class="container">
+    <div class="cta-inner">
+      <div class="cta-text">
+        <h2>Ready to spin?</h2>
+        <p>150+ beats across pop, trap, and guitar. One spin could get you in the door for free.</p>
+      </div>
+      <div class="cta-actions">
+        <button class="hero-cta" id="bottom-spin-cta">
+          🎰 &nbsp;Spin now
+        </button>
+        <div class="cta-note">Free · No account · 24h limit</div>
+      </div>
+    </div>
+  </div>
+</section> 
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- FOOTER                                                     -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<footer>
+  <div class="container">
+    <div class="footer-text">© 2026 DC Beats · All rights reserved</div>
+    <a href="https://earlyaccess.dcbeats.net" class="footer-link">dcbeats.net ↗</a>
+  </div>
+</footer>
+
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- ░░ FLOATING BUTTON — COMMENTED OUT (site integration) ░░  -->
+<!-- Uncomment for embedding in main index.html:               -->
+<!--                                                            -->
+<!--
+<button id="sw-float-btn" aria-label="Spin & Win">
+  <div class="sw-wheel-icon"></div>
+  <span class="sw-label">Spin & Win</span>
+</button>
+-->
+<!-- ══════════════════════════════════════════════════════════ -->
+
+<!-- SPIN WIDGET HTML -->
+<div id="sw-overlay"></div>
+<div id="sw-modal" role="dialog" aria-modal="true" aria-labelledby="sw-modal-title">
+  <button class="sw-close" id="sw-close-btn" aria-label="Close">✕</button>
+
+  <div id="sw-game-panel">
+    <div class="sw-header">
+      <div class="sw-badge">Free to play</div>
+      <h2 id="sw-modal-title">SPIN & WIN</h2>
+      <p>Play once every 24 hours · Exclusive prizes</p>
+    </div>
+    <div class="sw-wheel-wrap">
+      <div class="sw-pointer"></div>
+      <canvas id="sw-canvas" width="280" height="280"></canvas>
+    </div>
+    <button id="sw-spin-btn">🎰 &nbsp;SPIN THE WHEEL</button>
+    <div class="sw-controls">
+      <button class="sw-mute-btn" id="sw-mute-btn">🔊 &nbsp;Sound on</button>
+    </div>
+  </div>
+
+  <div id="sw-result-panel">
+    <div class="sw-prize-emoji" id="sw-prize-emoji">🎉</div>
+    <div class="sw-prize-title" id="sw-prize-title">YOU WON!</div>
+    <div class="sw-prize-sub" id="sw-prize-sub">Enter your email to claim your reward</div>
+    <div class="sw-prize-note">🏆 You will be contacted within 24 hours</div>
+    <div class="sw-email-form">
+      <input type="email" id="sw-email-input" placeholder="your@email.com" autocomplete="email">
+      <button class="sw-claim-btn" id="sw-claim-btn">CLAIM PRIZE</button>
+      <div class="sw-success-msg" id="sw-success-msg">✅ Claimed! We'll be in touch soon.<br><span style="font-style:normal;opacity:.7;">Check your spam folder just in case.</span></div>
+    </div>
+  </div>
+
+  <div id="sw-blocked-panel">
+    <div class="sw-blocked-icon">⏳</div>
+    <div class="sw-blocked-title">Come Back Tomorrow</div>
+    <div class="sw-blocked-sub">You've already played today.<br>Your next spin is available in:</div>
+    <div class="sw-countdown" id="sw-countdown">00:00:00</div>
+  </div>
+
+  <div id="sw-loading-panel">
+    <div class="sw-spinner"></div>
+    <div class="sw-loading-text">Sending your entry…</div>
+  </div>
+</div>
+
+<div id="sw-toast">
+  <div class="sw-toast-icon" id="sw-toast-icon">🏆</div>
+  <div class="sw-toast-text">
+    <span id="sw-toast-main">Someone just won 30% Discount</span>
+    <span id="sw-toast-sub">2 minutes ago</span>
+  </div>
+</div>
+
+<canvas id="sw-confetti"></canvas>
+
+
+<script>
+'use strict';
+
+/* ─────────────────────────────────────────────────────────────
+   ① CONFIGURATION
+   ───────────────────────────────────────────────────────────── */
+const CONFIG = {
+  webhookUrl: 'https://script.google.com/macros/s/AKfycbyBZU6OihbmkJaaDzX1-q7GxAJBwrTT83A4r8MyIo42oVcmXoGbds_r8dsT-ZFl1e8Zjg/exec',
+  prizes: [
+    { label: 'Free Unlimited\nLease',  short: 'Free Unlimited Lease', emoji: '👑', prob: 1,  color: '#c8a96e' },
+    { label: 'Free Basic\nLease',      short: 'Free Basic Lease',     emoji: '🎵', prob: 3,  color: '#7a6645' },
+    { label: '50%\nDiscount',          short: '50% Discount',         emoji: '🔥', prob: 5,  color: '#5e4d32' },
+    { label: '30%\nDiscount',          short: '30% Discount',         emoji: '⚡',  prob: 15, color: '#3a3020' },
+    { label: '10%\nDiscount',          short: '10% Discount',         emoji: '🎯', prob: 25, color: '#262014' },
+    { label: 'Try\nAgain',             short: 'Try Again',            emoji: '🔄', prob: 51, color: '#111111' },
+  ],
+  //cooldownHours: 24,
+  toastInterval: [12000, 22000],
+  minSpins: 5, maxSpins: 9, spinDuration: 5000,
+};
+
+const SOCIAL_PROOF = [
+  { icon:'🏆', main:'Someone won 30% Discount',               sub:'1 hour ago' },
+  { icon:'🎵', main:'Someone won a Free Basic Lease',         sub:'3 hours ago' },
+  { icon:'⚡', main:'Someone won 10% Discount',                sub:'6 hours ago' },
+  { icon:'🔥', main:'Someone won 50% Discount',               sub:'44 minutes ago' },
+  { icon:'👑', main:'Someone won a Free Unlimited Lease',     sub:'12 minutes ago' },
+  { icon:'🎯', main:'Someone won 10% Discount',               sub:'Just now' },
+  { icon:'🎵', main:'Someone won a Free Basic Lease',         sub:'12 hours ago' },
+  { icon:'⚡', main:'Someone won a 30% Discount',              sub:'20 hours ago' },
+];
+
+/* ─────────────────────────────────────────────────────────────
+   ② STATE & DOM
+   ───────────────────────────────────────────────────────────── */
+const STATE = { spinning:false, muted:false, currentRotation:0, wonPrize:null, uid:null, countdownTimer:null };
+const $  = id => document.getElementById(id);
+const EL = {
+  overlay:$('sw-overlay'), modal:$('sw-modal'), closeBtn:$('sw-close-btn'),
+  canvas:$('sw-canvas'), spinBtn:$('sw-spin-btn'), muteBtn:$('sw-mute-btn'),
+  gamePanel:$('sw-game-panel'), resultPanel:$('sw-result-panel'),
+  blockedPanel:$('sw-blocked-panel'), loadingPanel:$('sw-loading-panel'),
+  prizeEmoji:$('sw-prize-emoji'), prizeTitle:$('sw-prize-title'), prizeSub:$('sw-prize-sub'),
+  emailInput:$('sw-email-input'), claimBtn:$('sw-claim-btn'), successMsg:$('sw-success-msg'),
+  countdown:$('sw-countdown'), toast:$('sw-toast'),
+  toastIcon:$('sw-toast-icon'), toastMain:$('sw-toast-main'), toastSub:$('sw-toast-sub'),
+  confetti:$('sw-confetti'), heroCta:$('hero-spin-cta'), bottomCta:$('bottom-spin-cta'),
+};
+const ctx = EL.canvas.getContext('2d');
+
+/* ─────────────────────────────────────────────────────────────
+   ③ STORAGE
+   ───────────────────────────────────────────────────────────── */
+const getSD = () => { try { return JSON.parse(localStorage.getItem('sw_data')||'{}'); } catch { return {}; } };
+const setSD = o  => { try { localStorage.setItem('sw_data', JSON.stringify(o)); } catch {} };
+const genUID = () => 'sw_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+function ensureUID() { const d=getSD(); if(!d.uid){d.uid=genUID();setSD(d);} STATE.uid=d.uid; return d.uid; }
+function hasPlayedToday() { const d=getSD(); return d.lastPlayed && (Date.now()-d.lastPlayed)<CONFIG.cooldownHours*3600000; }
+function markPlayed() { const d=getSD(); d.lastPlayed=Date.now(); d.uid=d.uid||genUID(); STATE.uid=d.uid; setSD(d); }
+function getTimeUntilNext() { const d=getSD(); return d.lastPlayed ? Math.max(0,d.lastPlayed+CONFIG.cooldownHours*3600000-Date.now()) : 0; }
+
+/* ─────────────────────────────────────────────────────────────
+   ④ WHEEL — gold monochromatic palette
+   ───────────────────────────────────────────────────────────── */
+function buildSegments() {
+  const angle = (Math.PI*2) / CONFIG.prizes.length; let start = 0;
+  return CONFIG.prizes.map(p => { const s={...p,startAngle:start,endAngle:start+angle}; start+=angle; return s; });
+}
+const SEGMENTS = buildSegments();
+const heroCanvas = document.getElementById('hero-canvas');
+const heroCtx    = heroCanvas.getContext('2d');
+let heroRot = 0;
+
+function drawWheelOn(c, size, rot) {
+  const cx=size/2, cy=size/2, r=size/2-4;
+  c.clearRect(0,0,size,size);
+  SEGMENTS.forEach(seg => {
+    const sa=seg.startAngle+rot-Math.PI/2, ea=seg.endAngle+rot-Math.PI/2;
+    c.beginPath(); c.moveTo(cx,cy); c.arc(cx,cy,r,sa,ea); c.closePath();
+    c.fillStyle=seg.color; c.fill();
+    c.strokeStyle='rgba(200,169,110,0.15)'; c.lineWidth=1; c.stroke();
+    const mid=(sa+ea)/2, lx=cx+Math.cos(mid)*(r*0.68), ly=cy+Math.sin(mid)*(r*0.68);
+    c.save(); c.translate(lx,ly); c.rotate(mid+Math.PI/2);
+    const fs=Math.max(10,Math.round(size*0.043));
+    c.font=`700 ${fs}px 'Syne',sans-serif`;
+    c.fillStyle=seg.color==='#111111' ? 'rgba(240,236,228,0.25)' : '#f0ece4';
+    c.strokeStyle='rgba(0,0,0,0.7)'; c.lineWidth=3; c.lineJoin='round';
+    c.textAlign='center'; c.textBaseline='middle';
+    seg.label.split('\n').forEach((line,j,arr) => {
+      const y=(j-(arr.length-1)/2)*(fs*1.1);
+      c.strokeText(line,0,y); c.fillText(line,0,y);
+    });
+    c.restore();
+  });
+  // Hub
+  const hub=c.createRadialGradient(cx,cy,0,cx,cy,18);
+  hub.addColorStop(0,'#1a140c'); hub.addColorStop(1,'#0a0a0a');
+  c.beginPath(); c.arc(cx,cy,18,0,Math.PI*2);
+  c.fillStyle=hub; c.fill();
+  c.strokeStyle='rgba(200,169,110,0.3)'; c.lineWidth=1.5; c.stroke();
+  c.beginPath(); c.arc(cx,cy,4,0,Math.PI*2);
+  c.fillStyle='rgba(200,169,110,0.6)'; c.fill();
+}
+
+function animateHeroWheel() { heroRot+=0.003; drawWheelOn(heroCtx,360,heroRot); requestAnimationFrame(animateHeroWheel); }
+animateHeroWheel();
+function drawWheel(rot) { drawWheelOn(ctx, EL.canvas.width, rot); }
+drawWheel(0);
+
+/* ─────────────────────────────────────────────────────────────
+   ⑤ PRIZE & SPIN
+   ───────────────────────────────────────────────────────────── */
+function selectPrize() {
+  const total=CONFIG.prizes.reduce((s,p)=>s+p.prob,0); let r=Math.random()*total;
+  for(const p of CONFIG.prizes){r-=p.prob; if(r<=0)return p;}
+  return CONFIG.prizes[CONFIG.prizes.length-1];
+}
+const normAngle = a => ((a%(Math.PI*2))+Math.PI*2)%(Math.PI*2);
+function prizeToTarget(prize) {
+  const seg=SEGMENTS.find(s=>s.short===prize.short);
+  return -((seg.startAngle+seg.endAngle)/2);
+}
+function easeOut(t) { return 1-Math.pow(1-t,3.5); }
+
+function spin() {
+  if(STATE.spinning)return;
+  STATE.spinning=true; EL.spinBtn.disabled=true;
+  playSound('spin');
+  const prize=selectPrize(); STATE.wonPrize=prize;
+  const start=STATE.currentRotation;
+  const extra=(CONFIG.minSpins+Math.random()*(CONFIG.maxSpins-CONFIG.minSpins))*Math.PI*2;
+  const target=normAngle(prizeToTarget(prize));
+  const spun=start+extra;
+  const final=spun+normAngle(target-normAngle(spun));
+  const t0=performance.now(); let lastTick=0;
+  function frame(now) {
+    const t=Math.min((now-t0)/CONFIG.spinDuration,1);
+    const rot=start+(final-start)*easeOut(t);
+    const na=normAngle(rot);
+    if(Math.abs(na-lastTick)>0.28){playSound('tick');lastTick=na;}
+    drawWheel(rot);
+    if(t<1){requestAnimationFrame(frame);return;}
+    STATE.currentRotation=normAngle(final);
+    drawWheel(STATE.currentRotation);
+    STATE.spinning=false; markPlayed(); onSpinComplete(prize);
+  }
+  requestAnimationFrame(frame);
+}
+
+function onSpinComplete(prize) {
+  if(prize.short!=='Try Again'){playSound('win');launchConfetti();setTimeout(()=>showResultPanel(prize),600);}
+  else setTimeout(showTryAgain,800);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ⑥ SCREENS
+   ───────────────────────────────────────────────────────────── */
+function showResultPanel(prize) {
+  EL.gamePanel.style.display='none';
+  EL.prizeEmoji.textContent=prize.emoji;
+  EL.prizeTitle.innerHTML=`🎉 You won <span class="gold">${prize.short}</span>`;
+  EL.prizeSub.textContent='Enter your email to claim your reward.';
+  EL.resultPanel.classList.add('active');
+}
+function showTryAgain() {
+  EL.gamePanel.style.display='none';
+  EL.blockedPanel.querySelector('.sw-blocked-icon').textContent='😔';
+  EL.blockedPanel.querySelector('.sw-blocked-title').textContent='No Luck This Time';
+  EL.blockedPanel.querySelector('.sw-blocked-sub').textContent="You didn't win this round. Come back tomorrow for another free spin!";
+  EL.countdown.style.display='none';
+  EL.blockedPanel.classList.add('active');
+}
+function showBlockedPanel() {
+  EL.gamePanel.style.display='none';
+  EL.blockedPanel.querySelector('.sw-blocked-icon').textContent='⏳';
+  EL.blockedPanel.querySelector('.sw-blocked-title').textContent='Come Back Tomorrow';
+  EL.blockedPanel.querySelector('.sw-blocked-sub').innerHTML="You've already played today.<br>Your next spin is available in:";
+  EL.countdown.style.display='';
+  EL.blockedPanel.classList.add('active'); startCountdown();
+}
+function resetPanels() {
+  $('sw-game-panel').style.display='';
+  ['sw-result-panel','sw-blocked-panel','sw-loading-panel'].forEach(id=>$(id).classList.remove('active'));
+  EL.spinBtn.disabled=false; EL.emailInput.value='';
+  EL.emailInput.style.display=''; EL.prizeSub.style.display='';
+  EL.claimBtn.style.display=''; EL.successMsg.style.display='none';
+  EL.claimBtn.disabled=false;
+  if(STATE.countdownTimer)clearInterval(STATE.countdownTimer);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ⑦ MODAL
+   ───────────────────────────────────────────────────────────── */
+function openModal() {
+  ensureUID(); resetPanels();
+  EL.overlay.classList.add('active'); EL.modal.classList.add('active');
+  document.body.style.overflow='hidden';
+  if(hasPlayedToday())showBlockedPanel();
+}
+function shouldWarnClose() {
+  return STATE.wonPrize && STATE.wonPrize.short!=='Try Again' &&
+         EL.resultPanel.classList.contains('active') &&
+         EL.successMsg.style.display!=='block';
+}
+function closeModal() {
+  if(shouldWarnClose()&&!window.confirm("Are you sure? If you close now you won't be able to claim your prize!"))return;
+  EL.overlay.classList.remove('active'); EL.modal.classList.remove('active');
+  document.body.style.overflow='';
+  if(STATE.countdownTimer)clearInterval(STATE.countdownTimer);
+}
+
+EL.heroCta.addEventListener('click', openModal);
+EL.bottomCta.addEventListener('click', openModal);
+EL.closeBtn.addEventListener('click', closeModal);
+EL.overlay.addEventListener('click', closeModal);
+EL.canvas.addEventListener('click', ()=>{if(!STATE.spinning)spin();});
+document.addEventListener('keydown', e=>{if(e.key==='Escape')closeModal();});
+
+EL.spinBtn.addEventListener('click', ()=>{ if(hasPlayedToday()){showBlockedPanel();return;} spin(); });
+
+/* ─────────────────────────────────────────────────────────────
+   ⑧ CLAIM / SUBMIT
+   ───────────────────────────────────────────────────────────── */
+EL.claimBtn.addEventListener('click', async () => {
+  const email = EL.emailInput.value.trim();
+  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    EL.emailInput.style.borderColor='rgba(139,74,58,0.8)';
+    EL.emailInput.focus();
+    setTimeout(()=>{EL.emailInput.style.borderColor='';},2000); return;
+  }
+  EL.resultPanel.classList.remove('active');
+  EL.loadingPanel.classList.add('active');
+  EL.claimBtn.disabled=true;
+  const payload={ email, prize:STATE.wonPrize?.short||'Unknown', date:new Date().toISOString(), uid:STATE.uid, userAgent:navigator.userAgent.slice(0,100) };
+  try { await submitEntry(payload); } catch(e){ console.warn('Submission error:',e); }
+  EL.loadingPanel.classList.remove('active');
+  EL.resultPanel.classList.add('active');
+  EL.successMsg.style.display='block';
+  EL.prizeSub.style.display='none';
+  EL.emailInput.style.display='none';
+  EL.claimBtn.style.display='none';
+  EL.prizeTitle.innerHTML=`🎉 You won <span class="gold">${STATE.wonPrize?.short}</span>`;
+});
+
+async function submitEntry(payload) {
+  const url=CONFIG.webhookUrl;
+  if(!url||url.includes('YOUR')){ console.warn('No webhook. Payload:',payload); await new Promise(r=>setTimeout(r,900)); return; }
+  await fetch(url,{ method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ⑨ COUNTDOWN
+   ───────────────────────────────────────────────────────────── */
+function startCountdown() {
+  const pad=n=>String(n).padStart(2,'0');
+  function tick() {
+    const ms=getTimeUntilNext(); if(ms<=0){EL.countdown.textContent='00:00:00';return;}
+    EL.countdown.textContent=`${pad(Math.floor(ms/3600000))}:${pad(Math.floor((ms%3600000)/60000))}:${pad(Math.floor((ms%60000)/1000))}`;
+  }
+  tick(); STATE.countdownTimer=setInterval(tick,1000);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ⑩ AUDIO
+   ───────────────────────────────────────────────────────────── */
+let audioCtx=null;
+const getAC=()=>audioCtx||(audioCtx=new(window.AudioContext||window.webkitAudioContext)());
+function playSound(type) {
+  if(STATE.muted)return;
+  try {
+    const ac=getAC();
+    if(type==='tick'){
+      const o=ac.createOscillator(),g=ac.createGain();
+      o.connect(g);g.connect(ac.destination); o.type='triangle';
+      o.frequency.value=550+Math.random()*180;
+      g.gain.setValueAtTime(0.07,ac.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.07);
+      o.start();o.stop(ac.currentTime+0.07);
+    } else if(type==='spin'){
+      const buf=ac.createBuffer(1,ac.sampleRate*0.3,ac.sampleRate);
+      const d=buf.getChannelData(0);
+      for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*(1-i/d.length);
+      const src=ac.createBufferSource(); src.buffer=buf;
+      const g=ac.createGain(); g.gain.value=0.1;
+      src.connect(g);g.connect(ac.destination);src.start();
+    } else if(type==='win'){
+      [523,659,784,1047].forEach((freq,i)=>{
+        const o=ac.createOscillator(),g=ac.createGain();
+        o.connect(g);g.connect(ac.destination); o.type='sine'; o.frequency.value=freq;
+        const t=ac.currentTime+i*0.13;
+        g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(0.18,t+0.05);
+        g.gain.exponentialRampToValueAtTime(0.001,t+0.4); o.start(t);o.stop(t+0.4);
+      });
+    }
+  } catch {}
+}
+EL.muteBtn.addEventListener('click',()=>{
+  STATE.muted=!STATE.muted;
+  EL.muteBtn.textContent=STATE.muted?'🔇 \u00a0Sound off':'🔊 \u00a0Sound on';
+});
+
+/* ─────────────────────────────────────────────────────────────
+   ⑪ CONFETTI — gold palette
+   ───────────────────────────────────────────────────────────── */
+const confCtx=EL.confetti.getContext('2d'); let confPieces=[];
+const CONF_COLORS=['#c8a96e','#dfc28e','#8a7355','#f0ece4','#6b5c3e','#e8d5a3','#fff8ec'];
+function resizeConf(){ EL.confetti.width=innerWidth; EL.confetti.height=innerHeight; }
+resizeConf(); addEventListener('resize',resizeConf);
+function launchConfetti() {
+  confPieces=Array.from({length:120},()=>({
+    x:Math.random()*innerWidth, y:-10-Math.random()*80,
+    w:5+Math.random()*8, h:3+Math.random()*4,
+    color:CONF_COLORS[Math.floor(Math.random()*CONF_COLORS.length)],
+    vx:(Math.random()-0.5)*3.5, vy:2.5+Math.random()*4.5,
+    rot:Math.random()*Math.PI*2, rotV:(Math.random()-0.5)*0.18, alpha:1,
+  }));
+  requestAnimationFrame(animateConf);
+}
+function animateConf() {
+  confCtx.clearRect(0,0,EL.confetti.width,EL.confetti.height);
+  confPieces=confPieces.filter(p=>p.alpha>0.01);
+  confPieces.forEach(p=>{
+    p.x+=p.vx;p.y+=p.vy;p.vy+=0.06;p.rot+=p.rotV;
+    if(p.y>EL.confetti.height*0.72)p.alpha-=0.014;
+    confCtx.save();confCtx.translate(p.x,p.y);confCtx.rotate(p.rot);
+    confCtx.globalAlpha=p.alpha;confCtx.fillStyle=p.color;
+    confCtx.fillRect(-p.w/2,-p.h/2,p.w,p.h);confCtx.restore();
+  });
+  if(confPieces.length>0)requestAnimationFrame(animateConf);
+  else confCtx.clearRect(0,0,EL.confetti.width,EL.confetti.height);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ⑫ SOCIAL PROOF TOASTS
+   ───────────────────────────────────────────────────────────── */
+let toastIdx=0;
+function showToast(){
+  const p=SOCIAL_PROOF[toastIdx++%SOCIAL_PROOF.length];
+  EL.toastIcon.textContent=p.icon; EL.toastMain.textContent=p.main; EL.toastSub.textContent=p.sub;
+  EL.toast.classList.add('show'); setTimeout(()=>EL.toast.classList.remove('show'),4000);
+}
+function scheduleToast(){ const[a,b]=CONFIG.toastInterval; setTimeout(()=>{showToast();scheduleToast();},a+Math.random()*(b-a)); }
+setTimeout(()=>{showToast();scheduleToast();},6000);
+
+/* ─────────────────────────────────────────────────────────────
+   ⑬ CANVAS RESIZE
+   ───────────────────────────────────────────────────────────── */
+function resizeCanvas(){ const s=Math.min(280,innerWidth-80); EL.canvas.width=s; EL.canvas.height=s; drawWheel(STATE.currentRotation); }
+resizeCanvas(); addEventListener('resize',resizeCanvas);
+
+/*
+  ═══════════════════════════════════════════════════════════════
+  INTEGRATION GUIDE — DC BEATS
+  ═══════════════════════════════════════════════════════════════
+
+  USAGE A — Standalone landing page (current setup)
+  Point the floating icon on main site to: href="spin-and-win.html"
+  That's it — no other changes needed.
+
+  USAGE B — Embedded widget on main site (index.html)
+  1. Copy the <style> block after "SPIN WIDGET — MODAL LAYER"
+  2. Copy all HTML from <div id="sw-overlay"> to <canvas id="sw-confetti">
+  3. Copy the full <script> block
+  4. Uncomment #sw-float-btn CSS and HTML
+  5. In JS, replace EL.heroCta + EL.bottomCta listeners with:
+       $('sw-float-btn').addEventListener('click', openModal)
+
+  GOOGLE SHEETS — already configured
+  Your Apps Script URL is set in CONFIG.webhookUrl
+
+  CHANGE PRIZES/ODDS
+  Edit CONFIG.prizes[]. prob values are relative weights.
+
+  RESET FOR TESTING
+  DevTools → Application → Local Storage → delete "sw_data"
+*/
+</script>
+
+</body>
+</html>
