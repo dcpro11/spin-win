@@ -97,7 +97,7 @@ h1,h2,h3,h4 {
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 1000;
-  height: 72px;
+  height: 50px;
   display: flex;
   align-items: center;
   background: rgba(10,10,10,0.85);
@@ -138,12 +138,14 @@ h1,h2,h3,h4 {
    HERO — full viewport, two-column
    ============================================================ */
 #hero {
-  min-height: 100vh;
+  min-height: 80vh;
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;
   gap: 4rem;
   padding-top: 72px;
+  padding-left: 30px;
+  padding-right: 30px;
   position: relative;
   overflow: hidden;
 }
@@ -222,12 +224,12 @@ h1,h2,h3,h4 {
 }
 
 .hero-note {
-  display: flex;
+  display: flex ;
   align-items: center;
   gap: 0.5rem;
   margin-top: 1.2rem;
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.75rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -297,7 +299,7 @@ h1,h2,h3,h4 {
   padding: 0.5rem 0.85rem;
   border-radius: 2px;
   font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 1rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-secondary);
@@ -709,7 +711,7 @@ footer .container {
 }
 @keyframes sw-spin { to { transform: rotate(360deg); } }
 .sw-loading-text {
-  font-family: var(--font-mono); font-size: 0.65rem;
+  font-family: var(--font-mono); font-size: 0.75rem;
   letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted);
 }
 
@@ -981,7 +983,8 @@ footer .container {
     <div class="cta-inner">
       <div class="cta-text">
         <h2>Ready to spin?</h2>
-        <p>150+ beats across pop, trap, and guitar. One spin could get you in the door for free.</p>
+        <p>Play once every 24 hours · Exclusive prizes</p>
+        <p>Win huge discounts or free leases!</p>
       </div>
       <div class="cta-actions">
         <button class="hero-cta" id="bottom-spin-cta">
@@ -1082,14 +1085,14 @@ footer .container {
 const CONFIG = {
   webhookUrl: 'https://script.google.com/macros/s/AKfycbyBZU6OihbmkJaaDzX1-q7GxAJBwrTT83A4r8MyIo42oVcmXoGbds_r8dsT-ZFl1e8Zjg/exec',
   prizes: [
-    { label: 'Free Unlimited\nLease',  short: 'Free Unlimited Lease', emoji: '👑', prob: 1,  color: '#c8a96e' },
-    { label: 'Free Basic\nLease',      short: 'Free Basic Lease',     emoji: '🎵', prob: 3,  color: '#7a6645' },
-    { label: '50%\nDiscount',          short: '50% Discount',         emoji: '🔥', prob: 5,  color: '#5e4d32' },
-    { label: '30%\nDiscount',          short: '30% Discount',         emoji: '⚡',  prob: 15, color: '#3a3020' },
-    { label: '10%\nDiscount',          short: '10% Discount',         emoji: '🎯', prob: 25, color: '#262014' },
-    { label: 'Try\nAgain',             short: 'Try Again',            emoji: '🔄', prob: 51, color: '#111111' },
+    { label: 'Free Unlimited\nLease',  short: 'Free Unlimited Lease', emoji: '👑', prob: 1,    color: '#c8a96e' },
+    { label: 'Free Basic\nLease',      short: 'Free Basic Lease',     emoji: '🎵', prob: 4,    color: '#7a6645' },
+    { label: '50%\nDiscount',          short: '50% Discount',         emoji: '🔥', prob: 10,   color: '#5e4d32' },
+    { label: '30%\nDiscount',          short: '30% Discount',         emoji: '⚡',  prob: 20,   color: '#3a3020' },
+    { label: '10%\nDiscount',          short: '10% Discount',         emoji: '🎯', prob: 35,   color: '#262014' },
+    { label: 'Try\nAgain',             short: 'Try Again',            emoji: '🔄', prob: 30,   color: '#111111' },
   ],
-  //cooldownHours: 24,
+  cooldownHours: 24,
   toastInterval: [12000, 22000],
   minSpins: 5, maxSpins: 9, spinDuration: 5000,
 };
@@ -1408,14 +1411,14 @@ function animateConf() {
 /* ─────────────────────────────────────────────────────────────
    ⑫ SOCIAL PROOF TOASTS
    ───────────────────────────────────────────────────────────── */
-let toastIdx=0;
+/*let toastIdx=0;
 function showToast(){
   const p=SOCIAL_PROOF[toastIdx++%SOCIAL_PROOF.length];
   EL.toastIcon.textContent=p.icon; EL.toastMain.textContent=p.main; EL.toastSub.textContent=p.sub;
   EL.toast.classList.add('show'); setTimeout(()=>EL.toast.classList.remove('show'),4000);
 }
 function scheduleToast(){ const[a,b]=CONFIG.toastInterval; setTimeout(()=>{showToast();scheduleToast();},a+Math.random()*(b-a)); }
-setTimeout(()=>{showToast();scheduleToast();},6000);
+setTimeout(()=>{showToast();scheduleToast();},6000); */
 
 /* ─────────────────────────────────────────────────────────────
    ⑬ CANVAS RESIZE
